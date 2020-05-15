@@ -1,15 +1,30 @@
 import random
 import argparse
 
- 
+
 class Robot():
-     
-    __illegal_names = {"Henry", "Oscar"}
-    __crucial_health_level = 0.6
- 
-    def __init__(self, name):
-        self.name = name  
-        self.health_level = random.random()
+    '''
+    Generic robot class- some of this code is built using the tutorial specified in the README as a template
+    param: str name 
+    '''
+    __counter = 0 #class attribute: number of times one has used this class 
+    __critical_health_level = 0.1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+    _class_info = 'Generic Robot' #added class info 
+
+    def __init__(self, name = None): #added none clause to init 
+        if name: 
+            self.__name = name
+        else:
+            self.__name = "No Name"
+        self.health_level = 0.5 
+    
+    @classmethod #added class method
+    def about(cls):
+        print("This class is about " + cls._class_info + "!")   
+
+    @staticmethod #added counting method 
+    def counting(): #number of times this class has been used
+        return self.__counter
  
     @property
     def name(self):
@@ -17,102 +32,128 @@ class Robot():
  
     @name.setter
     def name(self, name):
-        if name in Robot.__illegal_names:
-            self.__name = "Marvin"
-        else:
-            self.__name = name
+        self.__name = name
  
-    def __str__(self):
-        return self.name + ", Robot"
- 
-    def __add__(self, other):
-        first = self.name.split("-")[0]
-        second = other.name.split("-")[0]
-        return type(self)(first + "-" + second)
-     
-    def needs_a_nurse(self):
-        if self.health_level < Robot.__crucial_health_level:
+    def __str__(self): #editted 
+        return "Hi, I'm " + self.name + " Robot"
+        
+    def __lt__(self, other): #added magic methods
+        return self.health_level < other.health_level
+    
+    def __gt__(self, other):
+        return self.health_level > other.health_level
+    
+    def __eq__(self, other):
+        return self.health_level == other.health_level
+    
+    @property
+    def needs_a_nurse(self): 
+        if self.health_level < self.__critical_health_level: 
             return True
         else:
             return False
  
-    def say_hi(self):
-        print("Hi, I am " + self.name)
-        print("My health level is: " + str(self.health_level))
- 
  
 class NursingRobot(Robot):
- 
-    def __init__(self, name="Hubert", healing_power=None):
-        super().__init__(name)
-        if healing_power:
-            self.healing_power = healing_power
-        else:
-            self.healing_power = random.uniform(0.8, 1)
     
-    def say_hi(self):
-        print("I am a nurse robot " + self.name)
- 
-    def say_hi_to_doc(self):
-        Robot.say_hi(self)
- 
-    def heal(self, robo):
+    _class_info = "Nursing Robot" #added class info
+    
+    def __init__(self, name= "Nurse"):
+        super().__init__(name)
+        self.healing_power = random.uniform(0.8, 1)
+         
+    def heal(self, robo): 
         if robo.health_level > self.healing_power:
             print(self.name + " not strong enough to heal " + robo.name)
         else:
             robo.health_level = random.uniform(robo.health_level, self.healing_power)
             print(robo.name + " has been healed by " + self.name + "!")
-
-
+            
+    def heal_myself(self): #added new function to heal self 
+        self.heal(self, self)
+        
+    
 class FightingRobot(Robot):
      
     __maximum_damage = 0.2
+    _class_info = "Fighting Robot"
   
-    def __init__(self, name="Hubert", fighting_power=None):
+    def __init__(self, name="Fighter"):
         super().__init__(name)
-        if fighting_power:
-            self.fighting_power = fighting_power
-        else:
-            max_dam = FightingRobot.__maximum_damage
-            self.fighting_power = random.uniform(max_dam, 1)
-     
-    def say_hi(self):
-        print("I am the fighting Robot " + self.name)
+        max_dam = FightingRobot.__maximum_damage
+        self.fighting_power = random.uniform(max_dam, 1) #editted 
  
-    def attack(self, other):
-        other.health_level = \
-                    other.health_level * self.fighting_power
-        #if isinstance(other, FightingRobot):
-            # the other robot fights back
-        #    self.health_level = \
-        #            self.health_level * other.fighting_power
+    def attack(self, other): #editted - new functions, block and attack back 
+        if isinstance(other, FightingRobot) or isinstance(other, FightingNurseRobot): 
+            chance_of_block = random.uniform(0, 1)
+            if chance_of_block > 0.2:  
+                other.health_level = other.health_level * self.fighting_power
+            else: 
+                #the other robot blocks the attack- NEW
+                print(other.name + ' blocked ' +  self.name + "'s" + ' attack!')
+                if chance_of_block < 0.05: 
+                    #robot scratches back also - NEW
+                    print(other.name + ' scratched '+ self.name + '!')
+                    self.health_level = self.health_level * other.fighting_power * 0.3
+        else: 
+            other.health_level = other.health_level * self.fighting_power
+            print(self.name + " successfully attacked!")
 
 
 class FightingNurseRobot(NursingRobot, FightingRobot):
+    '''
+    Cleaned up class and removed additional functionalities 
+    '''
+    _class_info = "Fighting Nurse Robot"
     
-    def __init__(self, name, mode="nursing"):
+    def __init__(self, name):
         super().__init__(name)
-        self.mode = mode    # alternatively "fighting"
 
-    def say_hi(self):
-        if self.mode == "fighting":
-            FightingRobot.say_hi(self)
-        elif self.mode == "nursing":
-            NursingRobot.say_hi(self)
-        else:
-            Robot.say_hi(self)      
 
+#From now on, all this code is new (outside the tutorial)
+class ChaosRobot(FightingNurseRobot): 
+    '''
+    THISIS A NEW CLASS - NOVEL CODE - Chaos robot randomly helps or heals
+    '''
+    _class_info = "Chaos Robot"
+    
+    def __init__(self, name):
+        super().__init__(name)
+        
+    def do_chaos(self, you_robot, opponent): 
+        self.chaos_chance = random.uniform(0, 1)
+        if self.chaos_chance < 0.5: #do nothing
+            print('Chaos robot is chilling!')
+        elif self.chaos_chance > 0.5 and self.chaos_chance < 0.6: #heal opponent
+            self.heal(opponent) 
+            print("Chaos robot healed your opponent!")
+        elif self.chaos_chance > 0.6 and self.chaos_chance < 0.7: #heal you 
+            self.heal(you_robot)  
+            print("Chaos robot healed you!")
+        elif self.chaos_chance > 0.7 and self.chaos_chance < 0.8: #attack opponent
+            self.attack(opponent) 
+            print("Chaos robot attacked you!")
+        elif self.chaos_chance > 0.8 and self.chaos_chance < 0.9: #attack you 
+            self.attack(you_robot)  
+            print("Chaos robot attacked you!")
+        else: #random action- singing
+            print('Chaos robot starting singing Michael Jackson!') 
 
 
 def main():
     player_name = str(input("What do you want to name your robot? "))
-    opponent_name = str(input("Choose your opponent name: "))
     fn2 = FightingNurseRobot(player_name)
-    fn2.say_hi()
-    fn1 = FightingNurseRobot(opponent_name, mode="fighting")
+    print(fn2)
+    change_name = str(input("Do you want to change your name? Enter 'No' or a new name: ")).lower()
+    if change_name != 'no': 
+        fn2.name = change_name
+        print(fn2)
+    opponent_name = str(input("Choose your opponent's name: "))
+    fn1 = FightingNurseRobot(opponent_name)
     print("I'm your opponent, " + opponent_name)
     print("Let's play!")
-    
+    chaos_robot = ChaosRobot('Chaos')
+    print('By the way... there\'s also a chaos robot who likes to do things, so watch out!')
 
     quit = False 
     while not quit: 
@@ -122,22 +163,23 @@ def main():
         print(opponent_name + " attacked you!")
         fn1.attack(fn2)
         if player_action.lower() == 'f': 
-            fn2.attack(fn1)
             print('You attacked ' + opponent_name + '!')
+            fn2.attack(fn1)
         elif player_action.lower() == 'h': 
             fn2.heal(fn2)
-            print('You healed yourself!')
-        print('Your health level is ' + str(round(fn2.health_level,3)))
-        print('Your opponent\'s health level is ' + str(round(fn1.health_level,3)))
+        chaos_robot.do_chaos(fn2, fn1)
+        
+        print('Your health level is ' + str(round(fn2.health_level,3)) + '. ' + 'Your opponent\'s health level is ' + str(round(fn1.health_level,3)))
         if fn1.health_level < 0.005 and fn1.health_level < fn2.health_level: 
             print("You win! Good job " + player_name)
             return True  
         elif fn2.health_level < 0.005 and fn1.health_level > fn2.health_level: 
             print("Aw, you lost! Beter luck next time.")
             quit = True 
+        elif fn2.needs_a_nurse: 
+            print("Health level critical. Please heal yourself!")
         else: 
             quit = False 
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Enter user name.')
